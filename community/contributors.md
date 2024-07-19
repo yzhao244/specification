@@ -13,6 +13,9 @@ us know in chat or team meeting.
 * **Independent**
   * Louis Fourie
   * Achilleas Tzenetopoulos
+  * Antonio Mendoza Pérez
+  * Richard Gibson
+  * Lucas Stocksmeier
 
 * **Huawei**
   * Cathy Hong Zhang
@@ -33,10 +36,12 @@ us know in chat or team meeting.
   
 * **WSO2**
   * Chathura Ekanayake
-  
+
+* **Temporal Technologies**
+  * Tihomir Surdilovic
+
 * **Red Hat**
   * Ruben Romero Montes
-  * Tihomir Surdilovic
   * Ricardo Zanini 
   * Lucas Caparelli
   * Paul Morie
@@ -69,5 +74,8 @@ us know in chat or team meeting.
     * Josh Lane
     * Chris Gillum
 
-    
-
+* **Neuroglia**
+    * Charles d'Avernas
+    * Jean-Baptiste Bianchi
+  
+      

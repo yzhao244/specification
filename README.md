@@ -4,20 +4,27 @@
 [<img src="http://img.shields.io/badge/web-serverlessworkflow.io-red?style=social&logo=google-chrome">](https://cloud-native.slack.com/messages/serverless-workflow) 
 [<img src="https://img.shields.io/twitter/follow/CNCFWorkflow?style=social">](https://twitter.com/CNCFWorkflow)
 
-<p align="center">
-<img src="media/logos/serverlessworkflow-horizontal-color.png" width="500px" alt="Serverless Workflow Specification"/>
-</p>
+##  About
 
-A specification that defines a vendor-neutral and declarative workflow language,
-targeting the serverless computing technology domain.
+CNCF Serverless Workflow defines a vendor-neutral, open-source, and fully community-driven
+ecosystem for defining and running DSL-based workflows that target the Serverless technology domain.</h3>
 
-Serverless Workflow is hosted by the [Cloud Native Computing Foundation (CNCF)](https://www.cncf.io/) and was approved as a 
+This project is composed of:
+
+* [Specification](specification.md) for defining DSL-based workflows
+* [Developer SDKs](#sdks) for different programming languages
+* [Workflow runtimes](#runtime) supporting the specification
+* Developer [tooling support](#tooling) for writing DSL-based workflows
+
+CNCF Serverless Workflow is hosted by the [Cloud Native Computing Foundation (CNCF)](https://www.cncf.io/) and was approved as a 
 Cloud Native Sandbox level project on July 14, 2020.
 
 ## Table of Contents
 
+- [CNCF Landscape](#CNCF-Landscape)
 - [Releases](#Releases)
 - [SDKs](#SDKs)
+- [Runtime](#Runtime)
 - [Tooling](#Tooling)
 - [Community](#Community)
     - [Communication](#Communication)
@@ -25,41 +32,58 @@ Cloud Native Sandbox level project on July 14, 2020.
     - [Meetings](#Meetings)
     - [Meeting Minutes](#Meeting-Minutes)
 - [Repository Structure](#Repository-Structure)
+- [Support](#Support)
+
+## CNCF Landscape
+
+Serverless Workflow project falls under the [CNCF "App Definition and Development"](https://landscape.cncf.io/card-mode?category=app-definition-and-development&grouping=category) category.
+
+It is a member project of the [CNCF Serverless Working Group](https://github.com/cncf/wg-serverless).
+
+<p align="center">
+<a href="https://landscape.cncf.io/?category=application-definition-image-build&grouping=category" target="_blank"><img src="media/landscape/cncf-landscape.png" width="700px" alt="CNCF Landscape"/></a>
+</p>
+
+Check out our project DevStats [here](https://serverlessworkflow.devstats.cncf.io).
 
 ## Releases
 
 | | Latest release | Latest release branch | Working branch | 
 | --- |  :---: | :---: | :---: |
 | **Core Specification** | |
-| Serverless Workflow | [v0.6](https://github.com/serverlessworkflow/specification/releases) | [0.6.x](https://github.com/serverlessworkflow/specification/tree/0.6.x) | [main](https://github.com/serverlessworkflow/specification) |
+| [Serverless Workflow](https://github.com/serverlessworkflow/specification) | [v0.7](https://github.com/serverlessworkflow/specification/releases) | [0.7.x](https://github.com/serverlessworkflow/specification/tree/0.7.x) | [main](https://github.com/serverlessworkflow/specification) |
 | **Additional Components** | |
-| Java SDK | [2.0.0.Final](https://github.com/serverlessworkflow/sdk-java/releases) | [2.0.x](https://github.com/serverlessworkflow/sdk-java/tree/2.0.x) | [main](https://github.com/serverlessworkflow/sdk-java) |
-| GO SDK | [v1.0.0](https://github.com/serverlessworkflow/sdk-go/releases) | [1.0.x](https://github.com/serverlessworkflow/sdk-go/tree/1.0.x) | [main](https://github.com/serverlessworkflow/sdk-go) |
-| VSCode Extension | [1.6.0](https://marketplace.visualstudio.com/items?itemName=serverlessworkflow.serverless-workflow-vscode-extension) | | [main](https://github.com/serverlessworkflow/vscode-extension) |
+| [Synapse](https://github.com/serverlessworkflow/synapse) | [0.1.0-alpha1](https://github.com/serverlessworkflow/synapse/releases) |  | [main](https://github.com/serverlessworkflow/synapse) |
+| [GO SDK](https://github.com/serverlessworkflow/sdk-go) | [v2.0.0](https://github.com/serverlessworkflow/sdk-go/releases) | [1.0.x](https://github.com/serverlessworkflow/sdk-go/tree/1.0.x) | [main](https://github.com/serverlessworkflow/sdk-go) |
+| [Java SDK](https://github.com/serverlessworkflow/sdk-java) | [2.0.0.Final](https://github.com/serverlessworkflow/sdk-java/releases) | [2.0.x](https://github.com/serverlessworkflow/sdk-java/tree/1.0.x) | [main](https://github.com/serverlessworkflow/sdk-java) |
+| [.NET SDK](https://github.com/serverlessworkflow/sdk-net) | [v0.7.4.4](https://github.com/serverlessworkflow/sdk-net/releases) |  | [main](https://github.com/serverlessworkflow/sdk-net) |
+| [TypeScript SDK](https://github.com/serverlessworkflow/sdk-typescript) | [v1.0.0](https://github.com/serverlessworkflow/sdk-typescript/releases) | [1.0.x](https://github.com/serverlessworkflow/sdk-typescript/tree/1.0.x) | [main](https://github.com/serverlessworkflow/sdk-typescript) |
+| [VSCode Extension](https://github.com/serverlessworkflow/vscode-extension) | [1.6.0](https://marketplace.visualstudio.com/items?itemName=serverlessworkflow.serverless-workflow-vscode-extension) | | [main](https://github.com/serverlessworkflow/vscode-extension) |
+
+## Runtime
+
+- [Synapse](https://github.com/serverlessworkflow/synapse)
+
+Serverless Workflow is open to host open-source runtime implementations that would like to
+be part and grow alongside the core specification.
+
+[Synapse](https://github.com/serverlessworkflow/synapse) is a Kubernetes-native workflow runtime which supports and is part of the Serverless
+Workflow eco-system.
 
 ## SDKs
 
-In addition to the documentation mentioned above, there is also a set of SDKs being developed and are part of the specification:
-
 - [Go](https://github.com/serverlessworkflow/sdk-go)
 - [Java](https://github.com/serverlessworkflow/sdk-java)
+- [.NET](https://github.com/serverlessworkflow/sdk-net)
+- [TypeScript](https://github.com/serverlessworkflow/sdk-typescript)
 
-Being an open source community the Serverless Workflow team is open for new members as well open to their contributions. 
-In order to ensure that an SDK is going to be supported and maintained, the Serverless Workflow community would like to ensure that:
-
-* Each SDK has active points of contact.
-* Each SDK supports the latest(N), and N-1, major releases of the specification.
-* Within the scope of a major release, only support for the latest minor version is needed.
-
-Support for release candidates is not required, but strongly encouraged.
+Serverless Workflow encourages development of SDKs dedicated to help developers with 
+consuming, parsing, validating and testing their workflows that use the Serverless Workflow DSL.
 
 ## Tooling
 
 In order to enhance developer experience with the specification, we also provide a [Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=serverlessworkflow.serverless-workflow-vscode-extension).
 The sources of the extension are found [here](https://github.com/serverlessworkflow/vscode-extension).
-
-In order to ensure that the VSCode Extension is going to be supported and maintained, the Serverless Workflow community 
-would like to ensure that is has a dedicated point of contact.
 
 ## Community
 
@@ -69,6 +93,9 @@ workflow ecosystem. Community contributions are welcome and much needed to foste
 See [here](community/contributors.md) for the list of community members that have contributed to the specification.
 
 To learn how to contribute to the specification reference the ['how to contribute'](contributing.md) doc.
+
+If you have any copyright questions when contributing to a CNCF project like this one,
+reference the [Ownership of Copyrights in CNCF Project Contributions](https://github.com/cncf/foundation/blob/master/copyright-notices.md) doc.
   
 ### Communication
 
@@ -153,3 +180,7 @@ documents:
 | [examples](examples) | Specification examples |
 | [comparisons](comparisons) | Comparisons of Serverless Workflow with other workflow DSLs |
 | [community](community) | Contains info on the spec community |
+
+## Support
+
+Support our project by [becoming a Sponsor](https://crowdfunding.lfx.linuxfoundation.org/projects/serverless-workflow).

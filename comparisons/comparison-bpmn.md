@@ -1,26 +1,25 @@
 # Comparisons - BPMN2
 
 The [Business Process Model and Notation (BPMN)](https://www.omg.org/spec/BPMN/2.0/PDF) defines a flowchart-based
-DSL for workflows. It is maintained by the [Object Management Group (OMG)](https://www.omg.org/). 
+DSL for workflows. It is maintained by the [Object Management Group (OMG)](https://www.omg.org/).
 The latest BPMN version is [2.0.2](https://www.omg.org/spec/BPMN/2.0.2/), published in 2014.
 
 BPMN2 defines a graphical notation to specify workflows. This notation can then be shared between tooling and organizations.
 The graphical notation is translated into XML, which then can be used for runtime execution.
 
 For this comparison, we will compare the Serverless Workflow language with the graphical representation of BPMN2,
-and not its underlying XML representation. The BPMN2 XML is very difficult to understand, quite large for even the smallest workflows, and often not portable between runtimes. 
+and not its underlying XML representation. The BPMN2 XML is very difficult to understand, quite large for even the smallest workflows, and often not portable between runtimes.
 It makes more sense to use its portable graphical notation for comparisons.
 
-Serverless Workflow is a declarative workflow language, represented with JSON or YAML. It currently does not define a graphical notation. However, it can be graphically represented using different flowcharting techniques such as 
-UML activity diagrams. The [Serverless Workflow Java SDK](https://github.com/serverlessworkflow/sdk-java#building-workflow-diagram) as well as its [VSCode Extension](https://github.com/serverlessworkflow/vscode-extension) provide means to generate SVG diagrams based on the workflow JSON/YAML. 
+Serverless Workflow is a declarative workflow language, represented with JSON or YAML. It currently does not define a graphical notation. However, it can be graphically represented using different flowcharting techniques such as
+UML activity diagrams. The [Serverless Workflow Java SDK](https://github.com/serverlessworkflow/sdk-java#building-workflow-diagram) as well as its [VSCode Extension](https://github.com/serverlessworkflow/vscode-extension) provide means to generate SVG diagrams based on the workflow JSON/YAML.
 
 ## Note when reading provided examples
 
-The BPMN2 graphical notation does not provide details about data inputs/outputs, mapping, and transformation. 
+The BPMN2 graphical notation does not provide details about data inputs/outputs, mapping, and transformation.
 BPMN2 does provide graphical representation for things such as Data Objects. However, most of the examples
 available do not use them. Execution semantics such as task and event properties are also not visual.
-For this reason, the event, function, retry, and data mapping defined in the associated Serverless Workflow YAML are assumed. 
-
+For this reason, the event, function, retry, and data mapping defined in the associated Serverless Workflow YAML are assumed.
 
 ## Table of Contents
 
@@ -53,6 +52,7 @@ For this reason, the event, function, retry, and data mapping defined in the ass
 id: processfile
 name: Process File Workflow
 version: '1.0'
+specVersion: '0.7'
 start: Process File
 states:
 - name: Process File
@@ -88,6 +88,7 @@ functions:
 id: processapplication
 name: Process Application
 version: '1.0'
+specVersion: '0.7'
 start: ProcessNewApplication
 states:
 - name: ProcessNewApplication
@@ -141,6 +142,7 @@ events:
 id: simplecompensation
 name: Simple Compensation
 version: '1.0'
+specVersion: '0.7'
 start: Step 1
 states:
 - name: Step 1
@@ -198,41 +200,49 @@ functions:
 <td valign="top">
 
 ```yaml
+---
 id: errorwithretries
 name: Error Handling With Retries Workflow
 version: '1.0'
+specVersion: '0.7'
 start: Make Coffee
 states:
-- name: Make Coffee
-  type: operation
-  actions:
-  - functionRef: makeCoffee
-  transition: Add Milk
-- name: Add Milk
-  type: operation
-  actions:
-  - functionRef: addMilk
-  onErrors:
-  - error: D'oh! No more Milk!
-    retryRef: noMilkRetries
+  - name: Make Coffee
+    type: operation
+    actions:
+      - functionRef: makeCoffee
+    transition: Add Milk
+  - name: Add Milk
+    type: operation
+    actions:
+      - functionRef: addMilk
+        retryRef: noMilkRetries
+        retryableErrors:
+        - D'oh! No more Milk!
+    onErrors:
+      - errorRef: D'oh! No more Milk!
+        end: true
+    transition: Drink Coffee
+  - name: Drink Coffee
+    type: operation
+    actions:
+      - functionRef: drinkCoffee
     end: true
-  transition: Drink Coffee
-- name: Drink Coffee
-  type: operation
-  actions:
-  - functionRef: drinkCoffee
-  end: true
 retries:
-- name: noMilkRetries
-  delay: PT1M
-  maxAttempts: 10
+  - name: noMilkRetries
+    delay: PT1M
+    maxAttempts: 10
+errors:
+  - name: D'oh! No more Milk!
+    code: '123'
 functions:
-- name: makeCoffee
-  operation: file://myservice.json#make
-- name: addMilk
-  operation: file://myservice.json#add
-- name: drinkCoffee
-  operation: file://myservice.json#drink
+  - name: makeCoffee
+    operation: file://myservice.json#make
+  - name: addMilk
+    operation: file://myservice.json#add
+  - name: drinkCoffee
+    operation: file://myservice.json#drink
+
 ```
 
 </td>
@@ -258,11 +268,13 @@ functions:
 id: executiontimeout
 name: Execution Timeout Workflow
 version: '1.0'
+specVersion: '0.7'
 start: Purchase Parts
-execTimeout:
-  duration: PT7D
-  interrupt: true
-  runBefore: Handle timeout
+timeouts:
+  workflowExecTimeout:
+    duration: PT7D
+    interrupt: true
+    runBefore: Handle timeout
 states:
 - name: Purchase Parts
   type: operation
@@ -310,6 +322,7 @@ functions:
 id: foreachWorkflow
 name: ForEach State Workflow
 version: '1.0'
+specVersion: '0.7'
 start: ForEachItem
 states:
 - name: ForEachItem
@@ -317,7 +330,8 @@ states:
   inputCollection: "${ .inputsArray }"
   iterationParam: "${ .inputItem }"
   outputCollection: "${ .outputsArray }"
-  workflowId: doSomethingAndWaitForMessage
+  actions:
+  - subFlowRef: doSomethingAndWaitForMessage
   end: true
 ```
 
@@ -347,21 +361,35 @@ a starting "operation" state transitioning to an "event" state which waits for t
 id: subflowloop
 name: SubFlow Loop Workflow
 version: '1.0'
-start: SubflowLoop
+specVersion: '0.7'
+start: SubflowRepeat
 states:
-- name: SubflowLoop
-  type: subflow
-  workflowId: checkAndReplyToEmail
-  repeat:
-    max: 100
-  end: true
+- name: SubflowRepeat
+  type: operation
+  actions:
+  - functionRef: checkAndReplyToEmail
+    actionDataFilter:
+      fromStateData: ${ .someInput }
+      toStateData: ${ .someInput }
+  stateDataFilter:
+    output: ${ .maxChecks -= 1 }
+  transition: CheckCount
+- name: CheckCount
+  type: switch
+  dataConditions:
+  - condition: ${ .maxChecks > 0 }
+    transition: SubflowRepeat
+  defaultCondition:
+    end: true
 ```
 
 </td>
 </tr>
 </table>
 
-* Note: We did not include the `checkAndReplyToEmail` workflow in this example, which would include the 
+This workflow assumes that the input to the workflow includes a maxChecks attribute set to an integer value.
+
+* Note: We did not include the `checkAndReplyToEmail` workflow in this example, which would include the
 control-flow logic to check email and make a decision to reply to it or wait an hour.
 
 ### Approve Report
@@ -383,6 +411,7 @@ control-flow logic to check email and make a decision to reply to it or wait an 
 id: approvereport
 name: Approve Report Workflow
 version: '1.0'
+specVersion: '0.7'
 start: Approve Report
 states:
 - name: Approve Report
@@ -445,11 +474,13 @@ functions:
 id: eventdecision
 name: Event Decision workflow
 version: '1.0'
+specVersion: '0.7'
 start: A
 states:
 - name: A
-  type: subflow
-  workflowId: asubflowid
+  type: operation
+  actions:
+    - subFlowRef: asubflowid
   transition: Event Decision
 - name: Event Decision
   type: switch

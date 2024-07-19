@@ -86,6 +86,7 @@ languages.
 {
     "id": "greetingwithargs",
     "name": "Greeting With Args",
+    "specVersion": "0.7", 
     "start": "Set Output",
     "states": [
         {
@@ -194,6 +195,7 @@ instance is created. See the Serverless Workflow ["Workflow Data"](../specificat
     "id": "concatarray",
     "name": "Concatenating array values",
     "start": "DoConcat",
+    "specVersion": "0.7",
     "states": [
         {
             "name": "DoConcat",
@@ -283,6 +285,7 @@ array values, however it would just unnecessarily complicate things.
 {
     "id": "stopcomputeengine",
     "name": "Stop Compute Engine",
+    "specVersion": "0.7",
     "start": "DoStop",
     "states": [
         {
@@ -411,78 +414,76 @@ as service invocations, where as Google Workflow uses the "call" keyword.
 
 ```json
 {
-    "id": "publishtotopicwitherrorhandling",
-    "name": "Publish To Topic With Error Handling",
-    "start": "DoPublish",
-    "states": [
-        {
-            "name": "DoPublish",
-            "type": "operation",
-            "actions": [
-                {
-                    "functionRef": {
-                        "refName": "PublishToTopic",
-                        "arguments": {
-                            "project": "${ .project }",
-                            "topic": "${ .topic }",
-                            "message": "${ .message }"
-                        }
-                    }
-                }
-            ],
-            "onErrors": [
-                {
-                    "error": "PubSub Topic not found",
-                    "code": "404",
-                    "end": {
-                        "produceEvents": [
-                            {
-                                "eventRef": "TopicError",
-                                "data": { "message": "PubSub Topic not found"}
-                            }
-                        ]
-                    }
-                },
-                {
-                    "error": "Error authenticating to PubSub",
-                    "code": "403",
-                    "end": {
-                        "produceEvents": [
-                            {
-                                "eventRef": "TopicError",
-                                "data": { "message": "Error authenticating to PubSub"}
-                            }
-                        ]
-                    }
-                },
-                {
-                    "error": "*",
-                    "end": {
-                        "produceEvents": [
-                            {
-                                "eventRef": "TopicError",
-                                "data": { "message": "Error Performing PubSub"}
-                            }
-                        ]
-                    }
-                }
-            ],
-            "end": true
-        }
-    ],
-    "functions": [
-        {
-            "name": "PublishToTopic",
-            "operation": "pubsubapi.json#publish"
-        }
-    ],
-    "events": [
-        {
-            "name": "TopicError",
-            "source": "pubsub.topic.events",
-            "type": "pubsub/events"
-        }
-    ]
+  "id": "publishtotopicwitherrorhandling",
+  "name": "Publish To Topic With Error Handling",
+  "specVersion": "0.7",
+  "start": "DoPublish",
+  "errors": [
+    {
+      "name": "PubSub Topic not found",
+      "code": "404"
+    },
+    {
+      "name": "Error authenticating to PubSub",
+      "code": "403"
+    }
+  ],
+  "states": [
+      {
+          "name": "DoPublish",
+          "type": "operation",
+          "actions": [
+              {
+                  "functionRef": {
+                      "refName": "PublishToTopic",
+                      "arguments": {
+                          "project": "${ .project }",
+                          "topic": "${ .topic }",
+                          "message": "${ .message }"
+                      }
+                  }
+              }
+          ],
+          "onErrors": [
+              {
+                  "errorRef": "PubSub Topic not found",
+                  "end": {
+                      "produceEvents": [
+                          {
+                              "eventRef": "TopicError",
+                              "data": { "message": "PubSub Topic not found"}
+                          }
+                      ]
+                  }
+              },
+              {
+                  "errorRef": "Error authenticating to PubSub",
+                  "end": {
+                      "produceEvents": [
+                          {
+                              "eventRef": "TopicError",
+                              "data": { "message": "Error authenticating to PubSub"}
+                          }
+                      ]
+                  }
+              }
+          ],
+          "end": true
+      }
+  ],
+  "functions": [
+      {
+          "name": "PublishToTopic",
+          "operation": "pubsubapi.json#publish"
+      }
+  ],
+  "events": [
+      {
+          "name": "TopicError",
+          "source": "pubsub.topic.events",
+          "type": "pubsub/events"
+      }
+  ]
 }
 ```
 
@@ -576,20 +577,21 @@ to interested parties via events (CloudEvents specification format), which we ar
     "id": "errorhandlingwithretries",
     "name": "Error Handling with Retries",
     "start": "ReadItem",
+    "specVersion": "0.7",
     "states": [
         {
             "name": "ReadItem",
             "type": "operation",
             "actions": [
                 {
-                    "functionRef": "ReadItemFromApi"
+                    "functionRef": "ReadItemFromApi",
+                    "retryRef": "ServiceNotAvailableRetryPolicy",
+                    "retryableErrors": ["Service Not Available"]
                 }
             ],
             "onErrors": [
                 {
-                    "error": "Service Not Available",
-                    "code": "500",
-                    "retryRef": "ServiceNotAvailableRetry",
+                    "errorRef": "Service Not Available",
                     "end": true
                 }
             ],
@@ -602,9 +604,15 @@ to interested parties via events (CloudEvents specification format), which we ar
             "operation": "someapi.json#read"
         }
     ],
+    "errors": [
+      {
+        "name": "Service Not Available",
+        "code": "500"
+      }
+    ],
     "retries": [
         {
-            "name": "ServiceNotAvailableRetry",
+            "name": "ServiceNotAvailableRetryPolicy",
             "maxAttempts": 5,
             "delay": "PT2S",
             "maxDelay": "PT60S",
@@ -620,8 +628,12 @@ to interested parties via events (CloudEvents specification format), which we ar
 
 #### Notes
 
-Serverless Workflow defines [reusable retry definitions](../specification.md#Defining-Retries) which
-can be referenced by one or many error definitions in states. Google Workflow seems to reference the 
+Serverless Workflow defines [reusable retry definitions](../specification.md#Defining-Retries) which can be referenced by
+state actions. By default with Serverless workflow all actions are retried. You can however reference a defined 
+retry policy to perform specific retries on actions. If the error persists after defined retry attempts logic, 
+the workflow state can handle the error with its onErrors property.
+
+Google Workflow seems to reference the 
 error handlers in the "retry" statement as an expression/variable.
 
 ### Sub Workflows
@@ -682,8 +694,12 @@ error handlers in the "retry" statement as an expression/variable.
     "states": [
         {
             "name": "CallSub",
-            "type":"subflow",
-            "workflowId": "calledsubflow",
+            "type":"operation",
+            "actions": [
+              {
+                "subFlowRef": "calledsubflow"
+              }
+            ],
             "end": true
         }
     ]
@@ -696,7 +712,7 @@ error handlers in the "retry" statement as an expression/variable.
 
 #### Notes
 
-Serverless Workflow has a specific [SubFlow state](../specification.md#SubFlow-State). When called the current workflow data
+Serverless Workflow has a specific [SubFlow action](../specification.md#SubFlow-Action). By default the current workflow data
 is passed to it, so there is no need to define specific arguments.
 We have omitted the definition of "calledsubflow" as it is pretty straight forward. It would be 
 a separate workflow definition with the "id" parameter set to "calledsubflow" in this example.
@@ -803,7 +819,7 @@ a separate workflow definition with the "id" parameter set to "calledsubflow" in
                     "transition": "CallMedium"
                 }
             ],
-            "default": {
+            "defaultCondition": {
                 "transition": "CallLarge"
             }
         },

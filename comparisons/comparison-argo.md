@@ -5,7 +5,7 @@ orchestrating parallel jobs on Kubernetes.
 The Argo markup is YAML based and workflows are implemented as a Kubernetes CRD (Custom Resource Definition).
 Argo is also a [CNCF](https://www.cncf.io/) Incubating project. 
 
-Argo has a number of [examples](https://github.com/argoproj/argo/tree/master/examples) which display 
+Argo has a number of [examples](https://github.com/argoproj/argo-workflows/tree/master/examples) which display 
 different Argo templates.
 
 The purpose of this document is to show side-by-side the Argo markup and the equivalent markup of the 
@@ -37,7 +37,7 @@ Serverless Workflow specification part.
 
 ### Hello World With Parameters
 
-[Argo Example](https://github.com/argoproj/argo/tree/master/examples#parameters)
+[Argo Example](https://github.com/argoproj/argo-workflows/tree/master/examples#parameters)
 
 <table>
 <tr>
@@ -77,6 +77,7 @@ spec:
 id: hello-world-parameters
 name: Hello World with parameters
 version: '1.0'
+specVersion: '0.7'
 start: whalesay
 functions:
 - name: whalesayimage
@@ -100,7 +101,7 @@ states:
 
 ### Multi Step Workflow
 
-[Argo Example](https://github.com/argoproj/argo/tree/master/examples#steps)
+[Argo Example](https://github.com/argoproj/argo-workflows/tree/master/examples#steps)
 
 <table>
 <tr>
@@ -155,6 +156,7 @@ spec:
 id: hello-hello-hello
 name: Multi Step Hello
 version: '1.0'
+specVersion: '0.7'
 start: hello1
 functions:
 - name: whalesayimage
@@ -172,7 +174,7 @@ states:
   transition: parallelhello
 - name: parallelhello
   type: parallel
-  completionType: and
+  completionType: allOf
   branches:
   - name: hello2a-branch
     actions:
@@ -195,7 +197,7 @@ states:
 
 ### Directed Acyclic Graph
 
-[Argo Example](https://github.com/argoproj/argo/tree/master/examples#dag)
+[Argo Example](https://github.com/argoproj/argo-workflows/tree/master/examples#dag)
 
 *Note*: Even tho this example can be described (has a single 
 starting task) using the specification, the spec does not currently support multiple
@@ -256,6 +258,7 @@ spec:
 id: dag-diamond-
 name: DAG Diamond Example
 version: '1.0'
+specVersion: '0.7'
 start: A
 functions:
 - name: echo
@@ -273,7 +276,7 @@ states:
   transition: parallelecho
 - name: parallelecho
   type: parallel
-  completionType: and
+  completionType: allOf
   branches:
   - name: B-branch
     actions:
@@ -304,7 +307,7 @@ states:
 
 ### Scripts And Results
 
-[Argo Example](https://github.com/argoproj/argo/tree/master/examples#scripts--results)
+[Argo Example](https://github.com/argoproj/argo-workflows/tree/master/examples#scripts--results)
 
 <table>
 <tr>
@@ -374,6 +377,7 @@ spec:
 id: scripts-bash-
 name: Scripts and Results Example
 version: '1.0'
+specVersion: '0.7'
 start: generate
 functions:
 - name: gen-random-int-bash
@@ -422,7 +426,7 @@ states:
 
 ### Loops
 
-[Argo Example](https://github.com/argoproj/argo/tree/master/examples#loops)
+[Argo Example](https://github.com/argoproj/argo-workflows/tree/master/examples#loops)
 
 <table>
 <tr>
@@ -469,6 +473,7 @@ spec:
 id: loops-
 name: Loop over data example
 version: '1.0'
+specVersion: '0.7'
 start: injectdata
 functions:
 - name: whalesay
@@ -502,7 +507,7 @@ states:
 
 ### Conditionals
 
-[Argo Example](https://github.com/argoproj/argo/tree/master/examples#conditionals)
+[Argo Example](https://github.com/argoproj/argo-workflows/tree/master/examples#conditionals)
 
 <table>
 <tr>
@@ -563,6 +568,7 @@ spec:
 id: coinflip-
 name: Conditionals Example
 version: '1.0'
+specVersion: '0.7'
 start: flip-coin
 functions:
 - name: flip-coin-function
@@ -613,7 +619,7 @@ states:
 
 ### Retrying Failed Steps
 
-[Argo Example](https://github.com/argoproj/argo/tree/master/examples#retrying-failed-or-errored-steps)
+[Argo Example](https://github.com/argoproj/argo-workflows/tree/master/examples#retrying-failed-or-errored-steps)
 
 <table>
 <tr>
@@ -655,6 +661,7 @@ spec:
 id: retry-backoff-
 name: Retry Example
 version: '1.0'
+specVersion: '0.7'
 start: retry-backoff
 functions:
 - name: fail-function
@@ -676,10 +683,6 @@ states:
       arguments:
         args:
         - import random; import sys; exit_code = random.choice([0, 1, 1]); sys.exit(exit_code)
-  onErrors:
-  - error: "*"
-    retryRef: All workflow errors retry strategy
-    end: true
   end: true
 ```
 
@@ -690,7 +693,7 @@ states:
 
 ### Recursion
 
-[Argo Example](https://github.com/argoproj/argo/tree/master/examples#recursion)
+[Argo Example](https://github.com/argoproj/argo-workflows/tree/master/examples#recursion)
 
 <table>
 <tr>
@@ -744,6 +747,7 @@ spec:
 id: coinflip-recursive-
 name: Recursion Example
 version: '1.0'
+specVersion: '0.7'
 start: flip-coin-state
 functions:
 - name: heads-function
@@ -787,7 +791,7 @@ states:
 
 ### Exit Handlers
 
-[Argo Example](https://github.com/argoproj/argo/tree/master/examples#exit-handlers)
+[Argo Example](https://github.com/argoproj/argo-workflows/tree/master/examples#exit-handlers)
 
 *Note*: With Serverless Workflow specification we can handle Argos "onExit" functionality
 in a couple of ways. One is the "onErrors" functionality to define errors and transition to the parts
@@ -853,62 +857,70 @@ spec:
 id: exit-handlers-
 name: Exit/Error Handling Example
 version: '1.0'
+specVersion: '0.7'
+autoRetries: true
 start: intentional-fail-state
 functions:
-- name: intentional-fail-function
-  metadata:
-    image: alpine:latest
-    command: "[sh, -c]"
-- name: send-email-function
-  metadata:
-    image: alpine:latest
-    command: "[sh, -c]"
-- name: celebrate-cry-function
-  metadata:
-    image: alpine:latest
-    command: "[sh, -c]"
+  - name: intentional-fail-function
+    metadata:
+      image: alpine:latest
+      command: "[sh, -c]"
+  - name: send-email-function
+    metadata:
+      image: alpine:latest
+      command: "[sh, -c]"
+  - name: celebrate-cry-function
+    metadata:
+      image: alpine:latest
+      command: "[sh, -c]"
+errors:
+  - name: IntentionalError
+    code: '404'
 states:
-- name: intentional-fail-state
-  type: operation
-  actions:
-  - functionRef:
-      refName: intentional-fail-function
-      arguments:
-        args: echo intentional failure; exit 1
-  onErrors:
-  - error: "*"
-    transition: send-email-state
-- name: send-email-state
-  type: operation
-  actions:
-  - functionRef:
-      refName: send-email-function
-      arguments:
-        args: "echo send e-mail: ${ .workflow.name } ${ .workflow.status }"
-  transition: emo-state
-- name: emo-state
-  type: switch
-  dataConditions:
-  - condition: "${ .workflow| .status == \"Succeeded\" }"
-    transition: celebrate-state
-  - condition: "${ .workflow| .status != \"Succeeded\" }"
-    transition: cry-state
-- name: celebrate-state
-  type: operation
-  actions:
-  - functionRef:
-      refName: celebrate-cry-function
-      arguments:
-        args: echo hooray!
-  end: true
-- name: cry-state
-  type: operation
-  actions:
-  - functionRef:
-      refName: celebrate-cry-function
-      arguments:
-        args: echo boohoo!
-  end: true
+  - name: intentional-fail-state
+    type: operation
+    actions:
+      - functionRef:
+          refName: intentional-fail-function
+          arguments:
+            args: echo intentional failure; exit 1
+        nonRetryableErrors:
+          - IntentionalError
+    onErrors:
+      - errorRef: IntentionalError
+        transition: send-email-state
+    end: true
+  - name: send-email-state
+    type: operation
+    actions:
+      - functionRef:
+          refName: send-email-function
+          arguments:
+            args: 'echo send e-mail: ${ .workflow.name } ${ .workflow.status }'
+    transition: emo-state
+  - name: emo-state
+    type: switch
+    dataConditions:
+      - condition: ${ .workflow| .status == "Succeeded" }
+        transition: celebrate-state
+      - condition: ${ .workflow| .status != "Succeeded" }
+        transition: cry-state
+  - name: celebrate-state
+    type: operation
+    actions:
+      - functionRef:
+          refName: celebrate-cry-function
+          arguments:
+            args: echo hooray!
+    end: true
+  - name: cry-state
+    type: operation
+    actions:
+      - functionRef:
+          refName: celebrate-cry-function
+          arguments:
+            args: echo boohoo!
+    end: true
 ```
 
 </td>

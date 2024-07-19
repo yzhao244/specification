@@ -12,16 +12,47 @@ _Status description:_
 
 ## Releases
 
-- [v0.6 released March 2021](#v06)
-- [v0.5 released November 2020](#v05)
-- [v0.1 released April 2020](#v01)
+- [v0.7 released August 2021](#release-version-07)
+- [v0.6 released March 2021](#release-version-06)
+- [v0.5 released November 2020](#release-version-05)
+- [v0.1 released April 2020](#release-version-01)
 
-## <a name="v06"></a> v0.6
+## Release Version 0.7
+
+| Status | Description | Comments |
+| --- | --- |  --- |
+| ✔️| Add workflow `key` and `annotations` properties | [spec doc](../specification.md) |
+| ✔️| Replaced SubFlow state with subflow action type | [spec doc](../specification.md) |
+| ✔️| Add workflow `dataInputSchema` property | [spec doc](../specification.md) |
+| ✔️| Rename switch state `default` to `defaultCondition` to avoid keyword conflicts for SDK's | [spec doc](../specification.md) |
+| ✔️| Add description of additional properties | [spec doc](../specification.md) |
+| ✔️| Rename Parallel `completionType` values | [spec doc](../specification.md) |
+| ✔️| Removed `workflowId` from ParallelState and ForEach states (use subFlow action instead) | [spec doc](../specification.md) |
+| ✔️| Add subflow actions `version` property | [spec doc](../specification.md) |
+| ✔️| Renamed `schemaVersion` to `specVersion` and it is now a required parameter | [spec doc](../specification.md) |
+| ✔️| Add GraphQL support for function definitions | [spec doc](../specification.md) |
+| ✔️| Added "dataOnly" property to Event Definitions (allow event data filters to access entire event) | [spec doc](../specification.md) |
+| ✔️| Added support for Secrets and Constants | [spec doc](../specification.md) |
+| ✔️| Changed default value of execution timeout `interrupt` property. This is a non-backwards compatible changes. | [spec doc](../specification.md) |
+| ✔️| Updated workflow timeouts | [spec doc](../specification.md) |
+| ✔️| Added Workflow Auth definitions | [spec doc](../specification.md) |
+| ✔️| Added State execution timeouts | [spec doc](../specification.md) |
+| ✔️| Temporarily removed `waitForCompletion` for subflows | [spec doc](../specification.md) |
+| ✔️| Added function definition support for OData | [spec doc](../specification.md) |
+| ✔️| Added function definition support for AsyncAPI | [spec doc](../specification.md) |
+| ✔️| Rename Delay state to Sleep state | [spec doc](../specification.md) |
+| ✔️| Added 'sleep' property to action definition | [spec doc](../specification.md) |
+| ✔️| Added Rate Limiting extension | [spec doc](../specification.md) |
+| ✔️| Update ForEach state - adding sequential exec option and batch size for parallel option | [spec doc](../specification.md) |
+| ✔️| Update to error handling and retries. Retries are now per action rather than per state. Added option of automatic retries for actions | [spec doc](../specification.md) |
+| ✔️| Added "continueAs" property to end definitions | [spec doc](https://github.com/serverlessworkflow/specification/blob/0.6.x/specification.md) |
+
+## Release Version 0.6
 
 | Status | Description | Comments |
 | --- | --- |  --- |
 | ✔️| Adding Workflow Compensation capabilities (cmp [Compensating Transaction](https://docs.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction), [SAGA pattern](https://microservices.io/patterns/data/saga.html)) | [spec doc](https://github.com/serverlessworkflow/specification/blob/0.6.x/specification.md) |
-| ✔️| Adding comparison examples with Google Cloud Workflow language| [comparisons doc](https://github.com/serverlessworkflow/specification/blob/0.6.x/comparisons/README.md) |
+| ✔️| Adding comparison examples with Google Cloud Workflow language| [comparisons doc](https://github.com/serverlessworkflow/specification/blob/0.6.x//comparisons/README.md) |
 | ✔️| Updates to retry functionality | [retries: exponential backoff & max backoff](https://github.com/serverlessworkflow/specification/issues/137) [retries: max-attempts & interval](https://github.com/serverlessworkflow/specification/issues/136)|
 | ✔️| Update "directInvoke" property type | [spec doc](https://github.com/serverlessworkflow/specification/blob/0.6.x/specification.md) |
 | ✔️| Data schema input/output update | [spec doc](https://github.com/serverlessworkflow/specification/blob/0.6.x/specification.md) |
@@ -40,7 +71,7 @@ _Status description:_
 | ✔️| Updated schedule definition | [spec doc](https://github.com/serverlessworkflow/specification/blob/0.6.x/specification.md) |
 | ✔️| Update data filters | [spec doc](https://github.com/serverlessworkflow/specification/blob/0.6.x/specification.md) |
 
-## <a name="v05"></a> v0.5
+## Release Version 0.5
 
 | Status | Description | Comments |
 | --- | --- |  --- |
@@ -73,8 +104,7 @@ _Status description:_
 | ✔️| Enforce use of OpenAPI specification in function definitions for portability | [spec doc](https://github.com/serverlessworkflow/specification/blob/0.5.x/specification.md) |
 | ✔️| Update workflow Error Handling | [spec doc](../specification.md) |
 
-
-## <a name="v01"></a> v0.1
+## Release Version 0.1
 
 | Status | Description | Comments |
 | :--: | --- |  --- |
