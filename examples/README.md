@@ -9,6 +9,8 @@ Provides Serverless Workflow language examples
 - [Event-based greeting (Event State)](#Event-Based-Greeting-Example)
 - [Solving Math Problems (ForEach state)](#Solving-Math-Problems-Example)
 - [Parallel Execution](#Parallel-Execution-Example)
+- [Async Function Invocation](#Async-Function-Invocation-Example)
+- [Async SubFlow Invocation](#Async-SubFlow-Invocation-Example)
 - [Event Based Transitions (Event-based Switch)](#Event-Based-Transitions-Example)
 - [Applicant Request Decision (Data-based Switch + SubFlows)](#Applicant-Request-Decision-Example)
 - [Provision Orders (Error Handling)](#Provision-Orders-Example)
@@ -28,6 +30,8 @@ Provides Serverless Workflow language examples
 - [Book Lending Workflow](#Book-Lending)
 - [Filling a glass of water (Expression functions)](#Filling-a-glass-of-water)
 - [Online Food Ordering](#Online-Food-Ordering)
+- [Continuing as a new Execution](#Continuing-as-a-new-Execution)
+- [Process Transactions (Foreach State with conditions)](#Process-Transactions)
 
 ### Hello World Example
 
@@ -64,7 +68,7 @@ data output, which is:
 {
 "id": "helloworld",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "name": "Hello World Workflow",
 "description": "Inject Hello World",
 "start": "Hello State",
@@ -87,7 +91,7 @@ data output, which is:
 ```yaml
 id: helloworld
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Hello World Workflow
 description: Inject Hello World
 start: Hello State
@@ -148,7 +152,7 @@ Which is added to the states data and becomes the workflow data output.
 {
 "id": "greeting",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "name": "Greeting Workflow",
 "description": "Greet Someone",
 "start": "Greet",
@@ -187,7 +191,7 @@ Which is added to the states data and becomes the workflow data output.
 ```yaml
 id: greeting
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Greeting Workflow
 description: Greet Someone
 start: Greet
@@ -293,7 +297,7 @@ filters what is selected to be the state data output which then becomes the work
 {
 "id": "eventbasedgreeting",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "name": "Event Based Greeting Workflow",
 "description": "Event Based Greeting",
 "start": "Greet",
@@ -346,7 +350,7 @@ filters what is selected to be the state data output which then becomes the work
 ```yaml
 id: eventbasedgreeting
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Event Based Greeting Workflow
 description: Event Based Greeting
 start: Greet
@@ -421,7 +425,7 @@ result of the workflow execution.
 {
 "id": "solvemathproblems",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "name": "Solve Math Problems Workflow",
 "description": "Solve math problems",
 "start": "Solve",
@@ -463,7 +467,7 @@ result of the workflow execution.
 ```yaml
 id: solvemathproblems
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Solve Math Problems Workflow
 description: Solve math problems
 start: Solve
@@ -518,7 +522,7 @@ to finish execution before it can transition (end workflow execution in this cas
 {
 "id": "parallelexec",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "name": "Parallel Execution Workflow",
 "description": "Executes two branches in parallel",
 "start": "ParallelExec",
@@ -553,7 +557,7 @@ to finish execution before it can transition (end workflow execution in this cas
 ```yaml
 id: parallelexec
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Parallel Execution Workflow
 description: Executes two branches in parallel
 start: ParallelExec
@@ -578,6 +582,179 @@ states:
 We assume that the two referenced workflows, namely `shortdelayworkflowid` and `longdelayworkflowid` both include a single delay state,
 with the `shortdelayworkflowid` workflow delay state defining its `timeDelay` property to be shorter than that of the `longdelayworkflowid` workflows
 delay state.
+
+### Async Function Invocation Example
+
+#### Description
+
+This example uses a [Operation State](../specification.md#operation-state) to invoke a function async. 
+This functions sends an email to a customer.
+Async function execution is a "fire-and-forget" type of invocation. The function is invoked and workflow execution
+does not wait for its results.
+
+#### Workflow Diagram
+
+<p align="center">
+<img src="../media/examples/example-asyncfunction.png" height="500px" alt="Async Function Example"/>
+</p>
+
+#### Workflow Definition
+
+<table>
+<tr>
+    <th>JSON</th>
+    <th>YAML</th>
+</tr>
+<tr>
+<td valign="top">
+
+```json
+{
+ "id": "sendcustomeremail",
+ "version": "1.0",
+ "specVersion": "0.8",
+ "name": "Send customer email workflow",
+ "description": "Send email to a customer",
+ "start": "Send Email",
+ "functions": [
+  {
+   "name": "emailFunction",
+   "operation": "file://myapis/emailapis.json#sendEmail"
+  }
+ ],
+ "states":[
+  {
+   "name":"Send Email",
+   "type":"operation",
+   "actions":[
+    {
+     "functionRef": {
+      "invoke": "async",
+      "refName": "emailFunction",
+      "arguments": {
+       "customer": "${ .customer }"
+      }
+     }
+    }
+   ],
+   "end": true
+  }
+ ]
+}
+```
+
+</td>
+<td valign="top">
+
+```yaml
+id: sendcustomeremail
+version: '1.0'
+specVersion: '0.8'
+name: Send customer email workflow
+description: Send email to a customer
+start: Send Email
+functions:
+ - name: emailFunction
+   operation: file://myapis/emailapis.json#sendEmail
+states:
+ - name: Send Email
+   type: operation
+   actions:
+    - functionRef:
+       invoke: async
+       refName: emailFunction
+       arguments:
+        customer: "${ .customer }"
+   end: true
+```
+
+</td>
+</tr>
+</table>
+
+### Async SubFlow Invocation Example
+
+#### Description
+
+This example uses a [Operation State](../specification.md#operation-state) to invoke a [SubFlow](../specification.md#Subflow-Action) async.
+This SubFlow is responsible for performing some customer business logic.
+Async SubFlow invocation is a "fire-and-forget" type of invocation. The SubFlow is invoked and workflow execution
+does not wait for its results. In addition, we specify that the SubFlow should be allowed to continue its execution 
+event if the parent workflow completes its own execution. This is done by defining the actions `onParentComplete`
+property to `continue`.
+
+#### Workflow Diagram
+
+<p align="center">
+<img src="../media/examples/example-asyncsubflow.png" height="500px" alt="Async SubFlow Example"/>
+</p>
+
+#### Workflow Definition
+
+<table>
+<tr>
+    <th>JSON</th>
+    <th>YAML</th>
+</tr>
+<tr>
+<td valign="top">
+
+```json
+{
+ "id": "onboardcustomer",
+ "version": "1.0",
+ "specVersion": "0.8",
+ "name": "Onboard Customer",
+ "description": "Onboard a Customer",
+ "start": "Onboard",
+ "states":[
+  {
+   "name":"Onboard", 
+   "type":"operation",
+   "actions":[
+    {
+     "subFlowRef": {
+      "invoke": "async",
+      "onParentComplete": "continue",
+      "workflowId": "customeronboardingworkflow",
+      "version": "1.0"
+     }
+    }
+   ],
+   "end": true
+  }
+ ]
+}
+```
+
+</td>
+<td valign="top">
+
+```yaml
+id: onboardcustomer
+version: '1.0'
+specVersion: '0.8'
+name: Onboard Customer
+description: Onboard a Customer
+start: Onboard
+states:
+ - name: Onboard
+   type: operation
+   actions:
+    - subFlowRef:
+       invoke: async
+       onParentComplete: continue
+       workflowId: customeronboardingworkflow
+       version: '1.0'
+   end: true
+```
+
+</td>
+</tr>
+</table>
+
+For the sake of the example, the definition of "customeronboardingworkflow" workflow invoked as a SubFlow 
+is not shown. 
 
 ### Event Based Transitions Example
 
@@ -606,9 +783,9 @@ period, the workflow transitions to the "HandleNoVisaDecision" state.
 
 ```json
 {
-"id": "eventbasedswitch",
+"id": "eventbasedswitchstate",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "name": "Event Based Switch Transitions",
 "description": "Event Based Switch Transitions",
 "start": "CheckVisaStatus",
@@ -681,9 +858,9 @@ period, the workflow transitions to the "HandleNoVisaDecision" state.
 <td valign="top">
 
 ```yaml
-id: eventbasedswitch
+id: eventbasedswitchstate
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Event Based Switch Transitions
 description: Event Based Switch Transitions
 start: CheckVisaStatus
@@ -767,7 +944,7 @@ If the applicants age is over 18 we start the application (subflow action). Othe
 {
    "id": "applicantrequest",
    "version": "1.0",
-   "specVersion": "0.7",
+   "specVersion": "0.8",
    "name": "Applicant Request Decision Workflow",
    "description": "Determine if applicant request is valid",
    "start": "CheckApplication",
@@ -831,7 +1008,7 @@ If the applicants age is over 18 we start the application (subflow action). Othe
 ```yaml
 id: applicantrequest
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Applicant Request Decision Workflow
 description: Determine if applicant request is valid
 start: CheckApplication
@@ -911,7 +1088,7 @@ The data output of the workflow contains the information of the exception caught
 {
 "id": "provisionorders",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "name": "Provision Orders",
 "description": "Provision Orders and handle errors thrown",
 "start": "ProvisionOrder",
@@ -1016,7 +1193,7 @@ The data output of the workflow contains the information of the exception caught
 ```yaml
 id: provisionorders
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Provision Orders
 description: Provision Orders and handle errors thrown
 start: ProvisionOrder
@@ -1107,7 +1284,7 @@ In the case job submission raises a runtime error, we transition to an Operation
 {
   "id": "jobmonitoring",
   "version": "1.0",
-  "specVersion": "0.7",
+  "specVersion": "0.8",
   "name": "Job Monitoring",
   "description": "Monitor finished execution of a submitted job",
   "start": "SubmitJob",
@@ -1239,7 +1416,7 @@ In the case job submission raises a runtime error, we transition to an Operation
 ```yaml
 id: jobmonitoring
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Job Monitoring
 description: Monitor finished execution of a submitted job
 start: SubmitJob
@@ -1398,7 +1575,7 @@ CloudEvent upon completion of the workflow could look like:
 {
 "id": "sendcloudeventonprovision",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "name": "Send CloudEvent on provision completion",
 "start": "ProvisionOrdersState",
 "events": [
@@ -1448,7 +1625,7 @@ CloudEvent upon completion of the workflow could look like:
 ```yaml
 id: sendcloudeventonprovision
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Send CloudEvent on provision completion
 start: ProvisionOrdersState
 events:
@@ -1532,7 +1709,7 @@ have the matching patient id.
 "id": "patientVitalsWorkflow",
 "name": "Monitor Patient Vitals",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "start": "MonitorVitals",
 "events": [
 {
@@ -1633,7 +1810,7 @@ have the matching patient id.
 id: patientVitalsWorkflow
 name: Monitor Patient Vitals
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: MonitorVitals
 events:
 - name: HighBodyTemperature
@@ -1727,7 +1904,7 @@ when all three of these events happened (in no particular order).
 "id": "finalizeCollegeApplication",
 "name": "Finalize College Application",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "start": "FinalizeApplication",
 "events": [
 {
@@ -1806,7 +1983,7 @@ when all three of these events happened (in no particular order).
 id: finalizeCollegeApplication
 name: Finalize College Application
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: FinalizeApplication
 events:
 - name: ApplicationSubmitted
@@ -1938,7 +2115,7 @@ And for denied credit check, for example:
 {
     "id": "customercreditcheck",
     "version": "1.0",
-    "specVersion": "0.7",
+    "specVersion": "0.8",
     "name": "Customer Credit Check Workflow",
     "description": "Perform Customer Credit Check",
     "start": "CheckCredit",
@@ -2035,7 +2212,7 @@ And for denied credit check, for example:
 ```yaml
 id: customercreditcheck
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Customer Credit Check Workflow
 description: Perform Customer Credit Check
 start: CheckCredit
@@ -2143,7 +2320,7 @@ Bidding is done via an online application and bids are received as events are as
 {
     "id": "handleCarAuctionBid",
     "version": "1.0",
-    "specVersion": "0.7",
+    "specVersion": "0.8",
     "name": "Car Auction Bidding Workflow",
     "description": "Store a single bid whole the car auction is active",
     "start": {
@@ -2193,7 +2370,7 @@ Bidding is done via an online application and bids are received as events are as
 ```yaml
 id: handleCarAuctionBid
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Car Auction Bidding Workflow
 description: Store a single bid whole the car auction is active
 start:
@@ -2273,7 +2450,7 @@ The results of the inbox service called is expected to be for example:
 "id": "checkInbox",
 "name": "Check Inbox Workflow",
 "version": "1.0",
-"specVersion": "0.7",
+"specVersion": "0.8",
 "description": "Periodically Check Inbox",
 "start": {
     "stateName": "CheckInbox",
@@ -2332,7 +2509,7 @@ id: checkInbox
 name: Check Inbox Workflow
 description: Periodically Check Inbox
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start:
   stateName: CheckInbox
   schedule:
@@ -2417,17 +2594,19 @@ For this example we assume that the workflow instance is started given the follo
     "name": "Vet Appointment Workflow",
     "description": "Vet service call via events",
     "version": "1.0",
-    "specVersion": "0.7",
+    "specVersion": "0.8",
     "start": "MakeVetAppointmentState",
     "events": [
         {
             "name": "MakeVetAppointment",
-            "source": "VetServiceSoure",
+            "source": "VetServiceSource",
+            "type": "events.vet.appointments",
             "kind": "produced"
         },
         {
             "name": "VetAppointmentInfo",
             "source": "VetServiceSource",
+            "type": "events.vet.appointments",
             "kind": "consumed"
         }
     ],
@@ -2465,29 +2644,31 @@ id: VetAppointmentWorkflow
 name: Vet Appointment Workflow
 description: Vet service call via events
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: MakeVetAppointmentState
 events:
-- name: MakeVetAppointment
-  source: VetServiceSoure
-  kind: produced
-- name: VetAppointmentInfo
-  source: VetServiceSource
-  kind: consumed
+ - name: MakeVetAppointment
+   source: VetServiceSource
+   type: events.vet.appointments
+   kind: produced
+ - name: VetAppointmentInfo
+   source: VetServiceSource
+   type: events.vet.appointments
+   kind: consumed
 states:
-- name: MakeVetAppointmentState
-  type: operation
-  actions:
-  - name: MakeAppointmentAction
-    eventRef:
-      triggerEventRef: MakeVetAppointment
-      data: "${ .patientInfo }"
-      resultEventRef: VetAppointmentInfo
-    actionDataFilter:
-      results: "${ .appointmentInfo }"
-  timeouts:
+ - name: MakeVetAppointmentState
+   type: operation
+   actions:
+    - name: MakeAppointmentAction
+      eventRef:
+       triggerEventRef: MakeVetAppointment
+       data: "${ .patientInfo }"
+       resultEventRef: VetAppointmentInfo
+      actionDataFilter:
+       results: "${ .appointmentInfo }"
+   timeouts:
     actionExecTimeout: PT15M
-  end: true
+   end: true
 ```
 
 </td>
@@ -2564,7 +2745,7 @@ In our workflow definition then we can reference these files rather than definin
 {
   "id": "paymentconfirmation",
   "version": "1.0",
-  "specVersion": "0.7",
+  "specVersion": "0.8",
   "name": "Payment Confirmation Workflow",
   "description": "Performs Payment Confirmation",
   "functions": "functiondefs.json",
@@ -2665,7 +2846,7 @@ In our workflow definition then we can reference these files rather than definin
 ```yaml
 id: paymentconfirmation
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 name: Payment Confirmation Workflow
 description: Performs Payment Confirmation
 functions: functiondefs.json
@@ -2768,7 +2949,7 @@ If the retries are not successful, we want to just gracefully end workflow execu
   "id": "patientonboarding",
   "name": "Patient Onboarding Workflow",
   "version": "1.0",
-  "specVersion": "0.7",
+  "specVersion": "0.8",
   "start": "Onboard",
   "states": [
     {
@@ -2851,7 +3032,7 @@ If the retries are not successful, we want to just gracefully end workflow execu
 id: patientonboarding
 name: Patient Onboarding Workflow
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: Onboard
 states:
  - name: Onboard
@@ -2940,7 +3121,7 @@ This example shows the use of the workflow [execTimeout definition](../specifica
   "id": "order",
   "name": "Purchase Order Workflow",
   "version": "1.0",
-  "specVersion": "0.7",
+  "specVersion": "0.8",
   "start": "StartNewOrder",
   "timeouts": {
     "workflowExecTimeout": {
@@ -3101,7 +3282,7 @@ This example shows the use of the workflow [execTimeout definition](../specifica
 id: order
 name: Purchase Order Workflow
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: StartNewOrder
 
 timeouts:
@@ -3224,7 +3405,7 @@ the data for an hour, send report, and so on.
   "id": "roomreadings",
   "name": "Room Temp and Humidity Workflow",
   "version": "1.0",
-  "specVersion": "0.7",
+  "specVersion": "0.8",
   "start": "ConsumeReading",
   "timeouts": {
     "workflowExecTimeout": {
@@ -3314,7 +3495,7 @@ the data for an hour, send report, and so on.
 id: roomreadings
 name: Room Temp and Humidity Workflow
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: ConsumeReading
 timeouts:
   workflowExecTimeout:
@@ -3398,7 +3579,7 @@ We fist define our top-level workflow for this example:
  "id": "checkcarvitals",
  "name": "Check Car Vitals Workflow",
  "version": "1.0",
- "specVersion": "0.7",
+ "specVersion": "0.8",
  "start": "WhenCarIsOn",
  "states": [
   {
@@ -3435,7 +3616,7 @@ We fist define our top-level workflow for this example:
     }
    ],
    "defaultCondition": {
-    "transition": "DoCarVitalsChecks"
+    "transition": "DoCarVitalChecks"
    }
   }
  ],
@@ -3461,7 +3642,7 @@ We fist define our top-level workflow for this example:
 id: checkcarvitals
 name: Check Car Vitals Workflow
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: WhenCarIsOn
 states:
  - name: WhenCarIsOn
@@ -3484,7 +3665,7 @@ states:
       eventRef: CarTurnedOffEvent
       end: true
    defaultCondition:
-    transition: DoCarVitalsChecks
+    transition: DoCarVitalChecks
 events:
  - name: CarTurnedOnEvent
    type: car.events
@@ -3513,7 +3694,7 @@ And then our reusable sub-workflow which performs the checking of our car vitals
  "id": "vitalscheck",
  "name": "Car Vitals Check",
  "version": "1.0",
- "specVersion": "0.7",
+ "specVersion": "0.8",
  "start": "CheckVitals",
  "states": [
   {
@@ -3572,7 +3753,7 @@ And then our reusable sub-workflow which performs the checking of our car vitals
 id: vitalscheck
 name: Car Vitals Check
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: CheckVitals
 states:
  - name: CheckVitals
@@ -3650,134 +3831,140 @@ For the sake of the example we assume the functions and event definitions are de
 
 ```json
 {
-   "id": "booklending",
-   "name": "Book Lending Workflow",
-   "version": "1.0",
-   "specVersion": "0.7",
-   "start": "Book Lending Request",
-   "states": [
-      {
-         "name": "Book Lending Request",
-         "type": "event",
-         "onEvents": [
-            {
-               "eventRefs": ["Book Lending Request Event"]
-            }
-         ],
-         "transition": "Get Book Status"
-      },
-      {
-         "name": "Get Book Status",
-         "type": "operation",
-         "actions": [
-            {
-               "functionRef": {
-                  "refName": "Get status for book",
-                  "arguments": {
-                     "bookid": "${ .book.id }"
-                  }
-               }
-            }
-         ],
-         "transition": "Book Status Decision"
-      },
-      {
-         "name": "Book Status Decision",
-         "type": "switch",
-         "dataConditions": [
-            {
-               "name": "Book is on loan",
-               "condition": "${ .book.status == \"onloan\" }",
-               "transition": "Report Status To Lender"
-            },
-            {
-               "name": "Check is available",
-               "condition": "${ .book.status == \"available\" }",
-               "transition": "Check Out Book"
-            }
-         ]
-      },
-      {
-         "name": "Report Status To Lender",
-         "type": "operation",
-         "actions": [
-            {
-               "functionRef": {
-                  "refName": "Send status to lender",
-                  "arguments": {
-                     "bookid": "${ .book.id }",
-                     "message": "Book ${ .book.title } is already on loan"
-                  }
-               }
-            }
-         ],
-         "transition": "Wait for Lender response"
-      },
-      {
-         "name": "Wait for Lender response",
-         "type": "switch",
-         "eventConditions": [
-            {
-               "name": "Hold Book",
-               "eventRef": "Hold Book Event",
-               "transition": "Request Hold"
-            },
-            {
-               "name": "Decline Book Hold",
-               "eventRef": "Decline Hold Event",
-               "transition": "Cancel Request"
-            }
-         ]
-      },
-      {
-         "name": "Request Hold",
-         "type": "operation",
-         "actions": [
-            {
-               "functionRef": {
-                  "refName": "Request hold for lender",
-                  "arguments": {
-                     "bookid": "${ .book.id }",
-                     "lender": "${ .lender }"
-                  }
-               }
-            }
-         ],
-         "transition": "Sleep two weeks"
-      },
-      {
-         "name": "Sleep two weeks",
-         "type": "sleep",
-         "duration": "PT2W",
-         "transition": "Get Book Status"
-      },
-      {
-         "name": "Check Out Book",
-         "type": "operation",
-         "actions": [
-            {
-               "functionRef": {
-                  "refName": "Check out book with id",
-                  "arguments": {
-                     "bookid": "${ .book.id }"
-                  }
-               }
-            },
-            {
-               "functionRef": {
-                  "refName": "Notify Lender for checkout",
-                  "arguments": {
-                     "bookid": "${ .book.id }",
-                     "lender": "${ .lender }"
-                  }
-               }
-            }
-         ],
-         "end": true
-      }
+ "id": "booklending",
+ "name": "Book Lending Workflow",
+ "version": "1.0",
+ "specVersion": "0.8",
+ "start": "Book Lending Request",
+ "states": [
+  {
+   "name": "Book Lending Request",
+   "type": "event",
+   "onEvents": [
+    {
+     "eventRefs": ["Book Lending Request Event"]
+    }
    ],
-   "functions": "file://books/lending/functions.json",
-   "events": "file://books/lending/events.json"
+   "transition": "Get Book Status"
+  },
+  {
+   "name": "Get Book Status",
+   "type": "operation",
+   "actions": [
+    {
+     "functionRef": {
+      "refName": "Get status for book",
+      "arguments": {
+       "bookid": "${ .book.id }"
+      }
+     }
+    }
+   ],
+   "transition": "Book Status Decision"
+  },
+  {
+   "name": "Book Status Decision",
+   "type": "switch",
+   "dataConditions": [
+    {
+     "name": "Book is on loan",
+     "condition": "${ .book.status == \"onloan\" }",
+     "transition": "Report Status To Lender"
+    },
+    {
+     "name": "Check is available",
+     "condition": "${ .book.status == \"available\" }",
+     "transition": "Check Out Book"
+    }
+   ],
+   "defaultCondition": {
+    "end": true
+   }
+  },
+  {
+   "name": "Report Status To Lender",
+   "type": "operation",
+   "actions": [
+    {
+     "functionRef": {
+      "refName": "Send status to lender",
+      "arguments": {
+       "bookid": "${ .book.id }",
+       "message": "Book ${ .book.title } is already on loan"
+      }
+     }
+    }
+   ],
+   "transition": "Wait for Lender response"
+  },
+  {
+   "name": "Wait for Lender response",
+   "type": "switch",
+   "eventConditions": [
+    {
+     "name": "Hold Book",
+     "eventRef": "Hold Book Event",
+     "transition": "Request Hold"
+    },
+    {
+     "name": "Decline Book Hold",
+     "eventRef": "Decline Hold Event",
+     "transition": "Cancel Request"
+    }
+   ],
+   "defaultCondition": {
+    "end": true
+   }
+  },
+  {
+   "name": "Request Hold",
+   "type": "operation",
+   "actions": [
+    {
+     "functionRef": {
+      "refName": "Request hold for lender",
+      "arguments": {
+       "bookid": "${ .book.id }",
+       "lender": "${ .lender }"
+      }
+     }
+    }
+   ],
+   "transition": "Sleep two weeks"
+  },
+  {
+   "name": "Sleep two weeks",
+   "type": "sleep",
+   "duration": "PT2W",
+   "transition": "Get Book Status"
+  },
+  {
+   "name": "Check Out Book",
+   "type": "operation",
+   "actions": [
+    {
+     "functionRef": {
+      "refName": "Check out book with id",
+      "arguments": {
+       "bookid": "${ .book.id }"
+      }
+     }
+    },
+    {
+     "functionRef": {
+      "refName": "Notify Lender for checkout",
+      "arguments": {
+       "bookid": "${ .book.id }",
+       "lender": "${ .lender }"
+      }
+     }
+    }
+   ],
+   "end": true
+  }
+ ],
+ "functions": "file://books/lending/functions.json",
+ "events": "file://books/lending/events.json"
 }
 ```
 
@@ -3788,76 +3975,80 @@ For the sake of the example we assume the functions and event definitions are de
 id: booklending
 name: Book Lending Workflow
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: Book Lending Request
 states:
-- name: Book Lending Request
-  type: event
-  onEvents:
-  - eventRefs:
-    - Book Lending Request Event
-  transition: Get Book Status
-- name: Get Book Status
-  type: operation
-  actions:
-  - functionRef:
-      refName: Get status for book
-      arguments:
+ - name: Book Lending Request
+   type: event
+   onEvents:
+    - eventRefs:
+       - Book Lending Request Event
+   transition: Get Book Status
+ - name: Get Book Status
+   type: operation
+   actions:
+    - functionRef:
+       refName: Get status for book
+       arguments:
         bookid: "${ .book.id }"
-  transition: Book Status Decision
-- name: Book Status Decision
-  type: switch
-  dataConditions:
-  - name: Book is on loan
-    condition: ${ .book.status == "onloan" }
-    transition: Report Status To Lender
-  - name: Check is available
-    condition: ${ .book.status == "available" }
-    transition: Check Out Book
-- name: Report Status To Lender
-  type: operation
-  actions:
-  - functionRef:
-      refName: Send status to lender
-      arguments:
+   transition: Book Status Decision
+ - name: Book Status Decision
+   type: switch
+   dataConditions:
+    - name: Book is on loan
+      condition: ${ .book.status == "onloan" }
+      transition: Report Status To Lender
+    - name: Check is available
+      condition: ${ .book.status == "available" }
+      transition: Check Out Book
+   defaultCondition:
+    end: true
+ - name: Report Status To Lender
+   type: operation
+   actions:
+    - functionRef:
+       refName: Send status to lender
+       arguments:
         bookid: "${ .book.id }"
         message: Book ${ .book.title } is already on loan
-  transition: Wait for Lender response
-- name: Wait for Lender response
-  type: switch
-  eventConditions:
-  - name: Hold Book
-    eventRef: Hold Book Event
-    transition: Request Hold
-  - name: Decline Book Hold
-    eventRef: Decline Hold Event
-    transition: Cancel Request
-- name: Request Hold
-  type: operation
-  actions:
-  - functionRef:
-      refName: Request fold for lender
-      arguments:
+   transition: Wait for Lender response
+ - name: Wait for Lender response
+   type: switch
+   eventConditions:
+    - name: Hold Book
+      eventRef: Hold Book Event
+      transition: Request Hold
+    - name: Decline Book Hold
+      eventRef: Decline Hold Event
+      transition: Cancel Request
+   defaultCondition:
+    end: true
+ - name: Request Hold
+   type: operation
+   actions:
+    - functionRef:
+       refName: Request hold for lender
+       arguments:
         bookid: "${ .book.id }"
         lender: "${ .lender }"
-  transition: Sleep two weeks
-- name: Sleep two weeks
-  type: sleep
-  duration: PT2W
-  transition: Get Book Status
-- name: Check Out Book
-  type: operation
-  actions:
-  - functionRef:
-      refName: Check out book with id
-      arguments:
+   transition: Sleep two weeks
+ - name: Sleep two weeks
+   type: sleep
+   duration: PT2W
+   transition: Get Book Status
+ - name: Check Out Book
+   type: operation
+   actions:
+    - functionRef:
+       refName: Check out book with id
+       arguments:
         bookid: "${ .book.id }"
-  - functionRef:
-      refName: Notify Lender for checkout
-      arguments:
+    - functionRef:
+       refName: Notify Lender for checkout
+       arguments:
         bookid: "${ .book.id }"
         lender: "${ .lender }"
-  end: true
+   end: true
 functions: file://books/lending/functions.json
 events: file://books/lending/events.json
 ```
@@ -3907,49 +4098,52 @@ Its results are then merged back into the state data according to the "toStateDa
 
 ```json
 {
-    "id": "fillgrassofwater",
-    "name": "Fill glass of water workflow",
-    "version": "1.0",
-    "specVersion": "0.7",
-    "start": "Check if full",
-    "functions": [
-        {
-            "name": "Increment Current Count Function",
-            "type": "expression",
-            "operation": ".counts.current += 1 | .counts.current"
-        }
-    ],
-    "states": [
-        {
-            "name": "Check if full",
-            "type": "switch",
-            "dataConditions": [
-                {
-                    "name": "Need to fill more",
-                    "condition": "${ .counts.current < .counts.max }",
-                    "transition": "Add Water"
-                },
-                {
-                    "name": "Glass full",
-                    "condition": ".counts.current >= .counts.max",
-                    "end": true
-                }
-            ]
-        },
-        {
-            "name": "Add Water",
-            "type": "operation",
-            "actions": [
-                {
-                    "functionRef": "Increment Current Count Function",
-                    "actionDataFilter": {
-                        "toStateData": ".counts.current"
-                    }
-                }
-            ],
-            "transition": "Check If Full"
-        }
-    ]
+ "id": "fillglassofwater",
+ "name": "Fill glass of water workflow",
+ "version": "1.0",
+ "specVersion": "0.8",
+ "start": "Check if full",
+ "functions": [
+  {
+   "name": "Increment Current Count Function",
+   "type": "expression",
+   "operation": ".counts.current += 1 | .counts.current"
+  }
+ ],
+ "states": [
+  {
+   "name": "Check if full",
+   "type": "switch",
+   "dataConditions": [
+    {
+     "name": "Need to fill more",
+     "condition": "${ .counts.current < .counts.max }",
+     "transition": "Add Water"
+    },
+    {
+     "name": "Glass full",
+     "condition": ".counts.current >= .counts.max",
+     "end": true
+    }
+   ],
+   "defaultCondition": {
+    "end": true
+   }
+  },
+  {
+   "name": "Add Water",
+   "type": "operation",
+   "actions": [
+    {
+     "functionRef": "Increment Current Count Function",
+     "actionDataFilter": {
+      "toStateData": ".counts.current"
+     }
+    }
+   ],
+   "transition": "Check if full"
+  }
+ ]
 }
 ```
 
@@ -3957,32 +4151,34 @@ Its results are then merged back into the state data according to the "toStateDa
 <td valign="top">
 
 ```yaml
-id: fillgrassofwater
+id: fillglassofwater
 name: Fill glass of water workflow
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: Check if full
 functions:
-- name: Increment Current Count Function
-  type: expression
-  operation: ".counts.current += 1 | .counts.current"
+ - name: Increment Current Count Function
+   type: expression
+   operation: ".counts.current += 1 | .counts.current"
 states:
-- name: Check if full
-  type: switch
-  dataConditions:
-  - name: Need to fill more
-    condition: "${ .counts.current < .counts.max }"
-    transition: Add Water
-  - name: Glass full
-    condition: ".counts.current >= .counts.max"
+ - name: Check if full
+   type: switch
+   dataConditions:
+    - name: Need to fill more
+      condition: "${ .counts.current < .counts.max }"
+      transition: Add Water
+    - name: Glass full
+      condition: ".counts.current >= .counts.max"
+      end: true
+   defaultCondition:
     end: true
-- name: Add Water
-  type: operation
-  actions:
-  - functionRef: Increment Current Count Function
-    actionDataFilter:
-      toStateData: ".counts.current"
-  transition: Check If Full
+ - name: Add Water
+   type: operation
+   actions:
+    - functionRef: Increment Current Count Function
+      actionDataFilter:
+       toStateData: ".counts.current"
+   transition: Check if full
 ```
 
 </td>
@@ -4105,7 +4301,7 @@ With the function and event definitions in place we can now start writing our ma
 id: foodorderworkflow
 name: Food Order Workflow
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: Place Order
 functions: file://orderfunctions.yml
 events: file://orderevents.yml
@@ -4153,7 +4349,7 @@ With this in place we can start defining our sub-workflows:
 id: placeorderworkflow
 name: Place Order Workflow
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: Submit Order
 states:
 - name: Submit Order
@@ -4187,7 +4383,7 @@ states:
 id: deliverorderworkflow
 name: Deliver Order Workflow
 version: '1.0'
-specVersion: '0.7'
+specVersion: '0.8'
 start: Dispatch Courier
 states:
 - name: Dispatch Courier
@@ -4234,3 +4430,284 @@ For the example order event, the workflow output for a successful completion wou
   ]
 }
 ```
+
+### Continuing as a new Execution
+
+#### Description
+
+Some runtime implementations on which we run our workflows can have different quotas, such as maximum execution durations, maximum consumed events, etc. We can use the Serverless workflow "continueAs" functionality that can be used to stop the current workflow execution and start another one (of the same or a different type). This is very useful in cases where we have to ensure we don't reach the imposed quotas of single workflow execution.
+
+This example assumes that the runtime we are using has a quota set to a maximum of one thousand consumed events per single workflow execution. 
+Our sample workflow consumes a single customer event at a time and invokes the `emailCustomer` function. 
+Note that we do not set a workflow `workflowExecTimeout`, so we intend to have a long-running workflow. However, because of the runtime restriction, in this case, we would run into the event consume limit, and our workflow would have to terminate. We can fix this problem by using [`continueAs`](../specification.md#Continuing-as-a-new-Execution), which will allow us to make sure that we reach the given limit and then continue our workflow execution as a new run.
+
+We assume that our workflow input has the runtime-imposed quota:
+
+```json
+{
+  "quota": {
+   "maxConsumedEvents": 1000
+  }
+}
+```
+
+#### Workflow Diagram
+
+<p align="center">
+<img src="../media/examples/example-continueas.png" height="400px" alt="ContinueAs Example"/>
+</p>
+
+#### Workflow Definition
+
+<table>
+<tr>
+    <th>JSON</th>
+    <th>YAML</th>
+</tr>
+<tr>
+<td valign="top">
+
+```json
+{
+ "id":"notifycustomerworkflow",
+ "name":"Notify Customer",
+ "version":"1.0",
+ "specVersion": "0.8",
+ "start":"WaitForCustomerEvent",
+ "states":[
+  {
+   "name":"WaitForCustomerEvent",
+   "type":"event",
+   "onEvents":[
+    {
+     "eventRefs":[
+      "CustomerEvent"
+     ],
+     "eventDataFilter":{
+      "data":"${ .customerId }",
+      "toStateData":"${ .eventCustomerId }"
+     },
+     "actions":[
+      {
+       "functionRef":{
+        "refName":"NotifyCustomerFunction",
+        "arguments":{
+         "customerId":"${ .eventCustomerId }"
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "stateDataFilter":{
+    "output":"${ .count = .count + 1 }"
+   },
+   "transition":"CheckEventQuota"
+  },
+  {
+   "name":"CheckEventQuota",
+   "type":"switch",
+   "dataConditions":[
+    {
+     "condition":"${ try(.customerCount) != null and .customerCount > .quota.maxConsumedEvents }",
+     "end":{
+      "continueAs": {
+       "workflowId": "notifycustomerworkflow",
+       "version": "1.0",
+       "data": "${ del(.customerCount) }"
+      }
+     }
+    }
+   ],
+   "defaultCondition":{
+    "transition":"WaitForCustomerEvent"
+   }
+  }
+ ],
+ "events":[
+  {
+   "name":"CustomerEvent",
+   "type":"org.events.customerEvent",
+   "source":"customerSource"
+  }
+ ],
+ "functions":[
+  {
+   "name":"NotifyCustomerFunction",
+   "operation":"http://myapis.org/customerapis.json#notifyCustomer"
+  }
+ ]
+}
+```
+
+</td>
+<td valign="top">
+
+```yaml
+id: notifycustomerworkflow
+name: Notify Customer
+version: '1.0'
+specVersion: '0.8'
+start: WaitForCustomerEvent
+states:
+ - name: WaitForCustomerEvent
+   type: event
+   onEvents:
+    - eventRefs:
+       - CustomerEvent
+      eventDataFilter:
+       data: "${ .customerId }"
+       toStateData: "${ .eventCustomerId }"
+      actions:
+       - functionRef:
+          refName: NotifyCustomerFunction
+          arguments:
+           customerId: "${ .eventCustomerId }"
+   stateDataFilter:
+    output: "${ .count = .count + 1 }"
+   transition: CheckEventQuota
+ - name: CheckEventQuota
+   type: switch
+   dataConditions:
+    - condition: "${ try(.customerCount) != null and .customerCount > .quota.maxConsumedEvents
+      }"
+      end:
+       continueAs:
+        workflowId: notifycustomerworkflow
+        version: '1.0'
+        data: "${ del(.customerCount) }"
+   defaultCondition:
+    transition: WaitForCustomerEvent
+events:
+ - name: CustomerEvent
+   type: org.events.customerEvent
+   source: customerSource
+functions:
+ - name: NotifyCustomerFunction
+   operation: http://myapis.org/customerapis.json#notifyCustomer
+```
+
+</td>
+</tr>
+</table>
+
+### Process Transactions
+
+#### Description
+
+This example shows how we can loop through a data input array (in parallel), and decide which action to perform
+depending on the value of each element in the input array. 
+We use the [action definition](../specification.md#Action-Definition) `condition` property to perform the action that 
+is best suited for the transaction value.
+Note that in this example we set the "large transaction amount" as a [workflow constant](../specification.md#Workflow-Constants). 
+There are other ways to set 
+this value, for example passing it as [workflow data input](../specification.md#Workflow-Data-Input), 
+or if this data is sensitive, to use [workflow secrets](../specification.md#Workflow-Secrets). 
+
+For the example, we assume the following workflow data input:
+
+```json
+{
+  "customer": {
+   "id": "abc123",
+   "name": "John Doe",
+   "transactions": [1000, 400, 60, 7000, 12000, 250]
+  }
+}
+```
+
+We use the [ForeEach workflow state](../specification.md#ForEach-State) to iterate through customer transactions (in parallel), and 
+decide which activity to perform based on the transaction value.
+
+#### Workflow Definition
+
+<table>
+<tr>
+    <th>JSON</th>
+    <th>YAML</th>
+</tr>
+<tr>
+<td valign="top">
+
+```json
+{
+ "id": "customerbankingtransactions",
+ "name": "Customer Banking Transactions Workflow",
+ "version": "1.0",
+ "specVersion": "0.8",
+ "autoRetries": true,
+ "constants": {
+  "largetxamount" : 5000
+ },
+ "states": [
+  {
+   "name": "ProcessTransactions",
+   "type": "foreach",
+   "inputCollection": "${ .customer.transactions }",
+   "iterationParam": "${ .tx }",
+   "actions": [
+    {
+     "name": "Process Larger Transaction",
+     "functionRef": "Banking Service - Larger Tx",
+     "condition": "${ .tx >= $CONST.largetxamount }"
+    },
+    {
+     "name": "Process Smaller Transaction",
+     "functionRef": "Banking Service - Smaller Tx",
+     "condition": "${ .tx < $CONST.largetxamount }"
+    }
+   ],
+   "end": true
+  }
+ ],
+ "functions": [
+  {
+   "name": "Banking Service - Larger Tx",
+   "type": "asyncapi",
+   "operation": "banking.yaml#largerTransation"
+  },
+  {
+   "name": "Banking Service - Smaller T",
+   "type": "asyncapi",
+   "operation": "banking.yaml#smallerTransation"
+  }
+ ]
+}
+```
+
+</td>
+<td valign="top">
+
+```yaml
+id: bankingtransactions
+name: Customer Banking Transactions Workflow
+version: '1.0'
+specVersion: '0.8'
+autoRetries: true
+constants:
+ largetxamount: 5000
+states:
+ - name: ProcessTransactions
+   type: foreach
+   inputCollection: "${ .customer.transactions }"
+   iterationParam: "${ .tx }"
+   actions:
+    - name: Process Larger Transaction
+      functionRef: Banking Service - Larger Tx
+      condition: "${ .tx >= $CONST.largetxamount }"
+    - name: Process Smaller Transaction
+      functionRef: Banking Service - Smaller Tx
+      condition: "${ .tx < $CONST.largetxamount }"
+   end: true
+functions:
+ - name: Banking Service - Larger Tx
+   type: asyncapi
+   operation: banking.yaml#largerTransation
+ - name: Banking Service - Smaller T
+   type: asyncapi
+   operation: banking.yaml#smallerTransation
+```
+
+</td>
+</tr>
+</table>

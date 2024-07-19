@@ -1,7 +1,7 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-green.svg?style=flat)](https://github.com/serverlessworkflow/specification/issues)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/serverlessworkflow/specification/blob/master/LICENSE)
 [<img src="http://img.shields.io/badge/slack-@serverless--workflow-red?style=social&logo=slack">](https://cloud-native.slack.com/messages/serverless-workflow) 
-[<img src="http://img.shields.io/badge/web-serverlessworkflow.io-red?style=social&logo=google-chrome">](https://cloud-native.slack.com/messages/serverless-workflow) 
+[<img src="http://img.shields.io/badge/web-serverlessworkflow.io-red?style=social&logo=google-chrome">](https://serverlessworkflow.io/) 
 [<img src="https://img.shields.io/twitter/follow/CNCFWorkflow?style=social">](https://twitter.com/CNCFWorkflow)
 
 ##  About
@@ -13,7 +13,7 @@ This project is composed of:
 
 * [Specification](specification.md) for defining DSL-based workflows
 * [Developer SDKs](#sdks) for different programming languages
-* [Workflow runtimes](#runtime) supporting the specification
+* [Workflow runtimes](#runtimes) supporting the specification
 * Developer [tooling support](#tooling) for writing DSL-based workflows
 
 CNCF Serverless Workflow is hosted by the [Cloud Native Computing Foundation (CNCF)](https://www.cncf.io/) and was approved as a 
@@ -23,8 +23,8 @@ Cloud Native Sandbox level project on July 14, 2020.
 
 - [CNCF Landscape](#CNCF-Landscape)
 - [Releases](#Releases)
+- [Runtimes](#Runtimes)
 - [SDKs](#SDKs)
-- [Runtime](#Runtime)
 - [Tooling](#Tooling)
 - [Community](#Community)
     - [Communication](#Communication)
@@ -51,16 +51,16 @@ Check out our project DevStats [here](https://serverlessworkflow.devstats.cncf.i
 | | Latest release | Latest release branch | Working branch | 
 | --- |  :---: | :---: | :---: |
 | **Core Specification** | |
-| [Serverless Workflow](https://github.com/serverlessworkflow/specification) | [v0.7](https://github.com/serverlessworkflow/specification/releases) | [0.7.x](https://github.com/serverlessworkflow/specification/tree/0.7.x) | [main](https://github.com/serverlessworkflow/specification) |
+| [Serverless Workflow](https://github.com/serverlessworkflow/specification) | [v0.8](https://github.com/serverlessworkflow/specification/releases) | [0.8.x](https://github.com/serverlessworkflow/specification/tree/0.8.x) | [main](https://github.com/serverlessworkflow/specification) |
 | **Additional Components** | |
 | [Synapse](https://github.com/serverlessworkflow/synapse) | [0.1.0-alpha1](https://github.com/serverlessworkflow/synapse/releases) |  | [main](https://github.com/serverlessworkflow/synapse) |
 | [GO SDK](https://github.com/serverlessworkflow/sdk-go) | [v2.0.0](https://github.com/serverlessworkflow/sdk-go/releases) | [1.0.x](https://github.com/serverlessworkflow/sdk-go/tree/1.0.x) | [main](https://github.com/serverlessworkflow/sdk-go) |
-| [Java SDK](https://github.com/serverlessworkflow/sdk-java) | [2.0.0.Final](https://github.com/serverlessworkflow/sdk-java/releases) | [2.0.x](https://github.com/serverlessworkflow/sdk-java/tree/1.0.x) | [main](https://github.com/serverlessworkflow/sdk-java) |
+| [Java SDK](https://github.com/serverlessworkflow/sdk-java) | [3.0.0.Final](https://github.com/serverlessworkflow/sdk-java/releases) | [3.0.x](https://github.com/serverlessworkflow/sdk-java/tree/3.0.x) | [main](https://github.com/serverlessworkflow/sdk-java) |
 | [.NET SDK](https://github.com/serverlessworkflow/sdk-net) | [v0.7.4.4](https://github.com/serverlessworkflow/sdk-net/releases) |  | [main](https://github.com/serverlessworkflow/sdk-net) |
-| [TypeScript SDK](https://github.com/serverlessworkflow/sdk-typescript) | [v1.0.0](https://github.com/serverlessworkflow/sdk-typescript/releases) | [1.0.x](https://github.com/serverlessworkflow/sdk-typescript/tree/1.0.x) | [main](https://github.com/serverlessworkflow/sdk-typescript) |
+| [TypeScript SDK](https://github.com/serverlessworkflow/sdk-typescript) | [v2.0.0](https://github.com/serverlessworkflow/sdk-typescript/releases) | [2.0.x](https://github.com/serverlessworkflow/sdk-typescript/tree/2.0.x) | [main](https://github.com/serverlessworkflow/sdk-typescript) |
 | [VSCode Extension](https://github.com/serverlessworkflow/vscode-extension) | [1.6.0](https://marketplace.visualstudio.com/items?itemName=serverlessworkflow.serverless-workflow-vscode-extension) | | [main](https://github.com/serverlessworkflow/vscode-extension) |
 
-## Runtime
+## Runtimes
 
 - [Synapse](https://github.com/serverlessworkflow/synapse)
 
@@ -123,7 +123,7 @@ See our full project Code of Conduct information [here](code-of-conduct.md).
 
 * [CNCF public events calendar](https://www.cncf.io/calendar/)
 
-The Serverless Workflow team meets weekly, every Monday at 10AM PT (USA Pacific).
+The Serverless Workflow team meets weekly, every Wednesday at 11AM ET (USA Eastern Time).
 
 Join from PC, Mac, Linux, iOS or Android via [zoom](https://zoom.us/my/cncfserverlesswg?pwd=YjNqYzhOdjRRd01YWFkzS1lHbDZqUT09)
 
@@ -149,13 +149,9 @@ http://www.thetimezoneconverter.com/?t=9:00%20am&tz=San%20Francisco&
 
 ### Meeting Minutes
 
-The minutes from our calls are available
-[here](https://docs.google.com/document/d/1xwcsWQmMiRN24a7o7oy9MstzMroAup31oOkM5Dru1jQ/edit#).
-
-Periodically, the group may have in-person meetings that coincide with a major
-conference. Please see the
-[meeting minutes](https://docs.google.com/document/d/1xwcsWQmMiRN24a7o7oy9MstzMroAup31oOkM5Dru1jQ/edit#)
-for any future plans.
+You can find meeting minutes [here](meetingminutes).
+Note that unfortunately we have lost our Google doc which contained meeting info for our prior meetings.
+We will move all meeting info to our github repo so that this never happens again.
 
 ## Repository Structure
 
@@ -180,6 +176,8 @@ documents:
 | [examples](examples) | Specification examples |
 | [comparisons](comparisons) | Comparisons of Serverless Workflow with other workflow DSLs |
 | [community](community) | Contains info on the spec community |
+| [annualreviews](annualreviews) | Contains the project annual reviews presented to the CNCF TOC |
+| [meetingminutes](meetingminutes) | Contains the projects community meeting minutes |
 
 ## Support
 
